@@ -1,0 +1,45 @@
+/* Базовое оформление сайта. Здесь только общие правила. */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: rgb(245, 246, 248);
+  color: rgb(32, 33, 36);
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+p {
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}

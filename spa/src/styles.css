@@ -1,0 +1,3 @@
+/* Файл нужен для прежнего import "./styles.css" в main.jsx. */
+/* Основные стили находятся в style.css. */
+@import "./style.css";
