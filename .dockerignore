@@ -1,0 +1,30 @@
+# Files from the local development environment
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Python temporary files and virtual environments
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/venv/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.coverage
+
+# Node.js dependencies and local frontend builds
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+
+# Local settings, databases and research results
+**/.env
+**/.env.local
+**/.env.production.local
+**/*.db
+**/*.sqlite3
+benchmarks/results/
