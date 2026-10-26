@@ -274,7 +274,6 @@ POST   /orders
 - FastAPI;
 - ORM или драйвер для работы с MSSQL;
 - pytest;
-- Black;
 - Flake8.
 
 ### SQL
@@ -334,7 +333,7 @@ Docker Compose
 Проверка backend:
 
 ```text
-Black / Flake8
+     Flake8
        ↓
      pytest
        ↓
