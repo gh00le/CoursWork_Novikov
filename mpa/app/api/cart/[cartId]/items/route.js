@@ -4,7 +4,7 @@ export async function POST(request, context) {
   const { cartId } = await context.params;
   const body = await request.text();
 
-  return proxyToBackend(`/api/cart/${cartId}/items`, {
+  return proxyToBackend(`/api/v1/cart/${cartId}/items`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

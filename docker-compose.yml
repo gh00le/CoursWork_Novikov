@@ -1,44 +1,97 @@
 services:
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: coursework_mssql
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_PID: "Developer"
-      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
-    ports:
-      - "1433:1433"
-    volumes:
-      - mssql_data:/var/opt/mssql
+  db:
+    image: postgres:16-alpine
     restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-coursework}
+      POSTGRES_USER: ${POSTGRES_USER:-coursework}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-coursework_dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-coursework} -d ${POSTGRES_DB:-coursework}",
+        ]
+      interval: 5s
+      timeout: 5s
+      # количество 15 попыток даёт postgres до 75 секунд на запуск в медленной среде
+      retries: 15
 
   redis:
     image: redis:7-alpine
-    container_name: coursework_redis
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
-    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
 
   backend:
     build:
       context: ./backend
-    container_name: coursework_backend
+    restart: unless-stopped
     environment:
-      MSSQL_HOST: mssql
-      MSSQL_PORT: "1433"
-      MSSQL_USER: sa
-      MSSQL_PASSWORD: "${MSSQL_SA_PASSWORD}"
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-coursework}:${POSTGRES_PASSWORD:-coursework_dev_password}@db:5432/${POSTGRES_DB:-coursework}
+      REDIS_URL: redis://redis:6379/0
+      CORS_ORIGINS: http://localhost:5173,http://localhost:4173,http://localhost:3000
     ports:
       - "8000:8000"
     depends_on:
-      - mssql
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # тайм-аут в 2 секунды достаточен для health endpoint и не задерживает перезапуск
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)",
+        ]
+      interval: 10s
+      # короткий тайм-аут позволяет быстро обнаружить остановившийся api
+      timeout: 3s
+      # 10 попыток дают сервису время завершить первый запуск и подключиться к базе
+      retries: 10
+      # первые 15 секунд не считаются ошибкой: api инициализирует схему и данные
+      start_period: 15s
+
+  spa:
+    build:
+      context: ./spa
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
     restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  mpa:
+    build:
+      context: ./mpa
+    restart: unless-stopped
+    environment:
+      API_URL_SERVER: http://backend:8000
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
-  mssql_data:
+  postgres_data:
   redis_data:

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useCart } from "../context/CartContext";
+import { useCart } from "../features/cart/context/useCart";
 
 function CheckoutPage() {
-  const { cart, checkout } = useCart();
+  const { cart, loading, error: cartError, checkout } = useCart();
   const [order, setOrder] = useState(null);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
@@ -44,7 +44,10 @@ function CheckoutPage() {
 
       {error && <p className="error">{error}</p>}
 
-      {!cart || cart.items.length === 0 ? (
+      {cartError && <p className="error" role="alert">{cartError}</p>}
+      {loading ? (
+        <p>Загрузка корзины...</p>
+      ) : !cart || cart.items.length === 0 ? (
         <div className="empty-state">
           <p>В корзине нет товаров для оформления.</p>
           <Link className="button" to="/catalog">

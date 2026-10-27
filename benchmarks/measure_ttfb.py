@@ -1,23 +1,24 @@
 import csv
+import os
 import time
 from pathlib import Path
 
 import requests
 
-RUNS = 10  # Количество повторений одного теста. 10 прогонов уменьшают влияние случайных скачков времени.
-REQUEST_TIMEOUT_SECONDS = 10  # Максимальное ожидание одного HTTP-ответа в секундах.
-PAUSE_BETWEEN_RUNS_SECONDS = 0.5  # Пауза между запросами в секундах, чтобы тесты не выполнялись слишком плотной серией.
+RUNS = int(os.getenv("TTFB_RUNS", "10"))  # количество 10 повторов даёт базовую оценку разброса без долгого замера.
+REQUEST_TIMEOUT_SECONDS = 10  # тайм-аут в 10 секунд ограничивает ожидание ответа от локального фронтенда.
+PAUSE_BETWEEN_RUNS_SECONDS = 0.5  # пауза в полсекунды снижает вероятность влияния последовательных запросов друг на друга.
 
 TARGETS = [
     {
         "architecture": "SPA",
         "page": "catalog",
-        "url": "http://localhost:4173/catalog",
+        "url": os.getenv("SPA_URL", "http://localhost:5173") + "/catalog",
     },
     {
         "architecture": "MPA",
         "page": "catalog",
-        "url": "http://localhost:3000/catalog",
+        "url": os.getenv("MPA_URL", "http://localhost:3000") + "/catalog",
     },
 ]
 
@@ -34,6 +35,9 @@ def measure_target(target):
         )
         response.raise_for_status()
 
+        # requests.response.elapsed измеряет время до получения заголовков ответа.
+        # это оценка ttfb на уровне http; браузерный navigation timing измеряется
+        # отдельно через lighthouse для той же страницы.
         ttfb_ms = response.elapsed.total_seconds() * 1000
 
         rows.append(

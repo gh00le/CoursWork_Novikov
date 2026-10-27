@@ -1,0 +1,9 @@
+﻿architecture,metric,cold_median,warm_median,warm_improvement_percent
+SPA,fcp_ms,3085.68,3104.95,-0.62
+SPA,lcp_ms,3408.76,3419.28,-0.31
+SPA,speed_index_ms,3085.68,3104.95,-0.62
+SPA,tti_ms,3408.76,3419.28,-0.31
+MPA,fcp_ms,754.82,754.98,-0.02
+MPA,lcp_ms,2291.22,2290.43,0.03
+MPA,speed_index_ms,754.82,754.98,-0.02
+MPA,tti_ms,2313.72,2313.8,-0.0

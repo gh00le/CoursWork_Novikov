@@ -1,5 +1,7 @@
-const BACKEND_URL =
-  process.env.API_URL_SERVER ?? "http://localhost:8000"; // Адрес FastAPI для серверных запросов Next.js.
+const BACKEND_URL = (process.env.API_URL_SERVER ?? "http://localhost:8000").replace(
+  /\/$/,
+  "",
+);
 
 export async function backendRequest(path, options = {}) {
   const response = await fetch(`${BACKEND_URL}${path}`, {
@@ -9,20 +11,18 @@ export async function backendRequest(path, options = {}) {
 
   if (!response.ok) {
     let message = "Ошибка обращения к FastAPI";
-
     try {
       const data = await response.json();
-      message = data.detail ?? message;
-    } catch {
+      message = Array.isArray(data.detail)
+        ? data.detail.map((item) => item.msg).join("; ")
+        : (data.detail ?? message);
+    }
+   catch {
       message = `HTTP ${response.status}`;
     }
-
     throw new Error(message);
   }
 
-  if (response.status === 204) {
-    return null;
-  }
-
+  if (response.status === 204) return null;
   return response.json();
 }

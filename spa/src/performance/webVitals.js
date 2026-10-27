@@ -1,27 +1,29 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from "web-vitals";
 
-const MAX_SAVED_METRICS = 200; // Максимум 200 записей, чтобы localStorage не разрастался при долгой разработке.
+const STORAGE_KEY = "coursework_web_vitals";
+// лимит в 200 записей подходит для локального анализа и не позволяет хранилищу расти бесконечно.
+const MAX_SAVED_METRICS = 200;
 
 function saveMetric(metric) {
-  const savedMetrics = JSON.parse(
-    localStorage.getItem("coursework_web_vitals") ?? "[]",
-  );
-
-  savedMetrics.push({
+  const entry = {
     name: metric.name,
     value: metric.value,
     rating: metric.rating,
     timestamp: new Date().toISOString(),
-  });
+  };
 
-  const limitedMetrics = savedMetrics.slice(-MAX_SAVED_METRICS);
+  try {
+    const savedMetrics = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+    savedMetrics.push(entry);
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(savedMetrics.slice(-MAX_SAVED_METRICS)),
+    );
+  } catch {
+    // сбор метрик не должен ломать магазин, если браузер запрещает доступ к хранилищу.
+  }
 
-  localStorage.setItem(
-    "coursework_web_vitals",
-    JSON.stringify(limitedMetrics),
-  );
-
-  console.log("[Web Vital]", metric.name, metric.value, metric.rating);
+  console.info("[Web Vital]", entry.name, entry.value, entry.rating);
 }
 
 export function startWebVitals() {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { getCategories, getProducts } from "../api/api";
-import ProductCard from "../components/ProductCard";
+import { getCategories, getProducts } from "../features/catalog/api";
+import ProductCard from "../features/catalog/components/ProductCard";
 
 function CatalogPage() {
   const [categories, setCategories] = useState([]);

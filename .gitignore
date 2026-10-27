@@ -51,3 +51,7 @@ benchmarks/results/final_cache/tmp/
 # Local temporary files
 *.tmp
 *.bak
+
+# Generated Lighthouse CI and network-profile raw reports
+benchmarks/results/lhci/
+benchmarks/results/network_profiles/raw/

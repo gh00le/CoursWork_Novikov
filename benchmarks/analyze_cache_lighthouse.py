@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -16,17 +17,22 @@ METRICS = [
     "cls",
     "tbt_ms",
     "speed_index_ms",
-    "tti_ms",
+    "tti_ms",  # Only present in older Lighthouse result files.
+    "inp_ms",
     "server_response_ms",
     "total_transfer_kb",
     "js_transfer_kb",
+    "request_count",
+    "seo_score",
+    "accessibility_score",
+    "best_practices_score",
 ]
 
 
 def build_summary(data: pd.DataFrame) -> pd.DataFrame:
     frames = []
 
-    for metric in METRICS:
+    for metric in (item for item in METRICS if item in data.columns):
         summary = (
             data.groupby(GROUP_COLUMNS)[metric]
             .agg(["mean", "median", "min", "max", "std"])
@@ -46,7 +52,11 @@ def build_cache_effect_table(data: pd.DataFrame) -> pd.DataFrame:
     for architecture in ("SPA", "MPA"):
         architecture_data = data[data["architecture"] == architecture]
 
-        for metric in ("fcp_ms", "lcp_ms", "speed_index_ms", "tti_ms"):
+        for metric in (
+            item
+            for item in ("fcp_ms", "lcp_ms", "speed_index_ms", "inp_ms", "tti_ms")
+            if item in data.columns
+        ):
             cold_median = architecture_data[
                 architecture_data["cache_mode"] == "cold"
             ][metric].median()
@@ -110,7 +120,7 @@ def main() -> None:
 
     data = pd.read_csv(RAW_FILE)
 
-    expected_runs = 30
+    expected_runs = int(os.getenv("LIGHTHOUSE_RUNS", "30"))
 
     counts = (
         data.groupby(GROUP_COLUMNS)
@@ -125,7 +135,7 @@ def main() -> None:
 
     if not incomplete.empty:
         print(
-            "\nВНИМАНИЕ: не у всех групп ровно 30 прогонов. "
+            f"\nВНИМАНИЕ: не у всех групп ровно {expected_runs} прогонов. "
             "Проверьте эксперимент перед использованием результатов."
         )
 

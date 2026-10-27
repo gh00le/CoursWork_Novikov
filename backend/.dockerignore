@@ -1,6 +1,3 @@
-# Docker Compose builds backend with context: ./backend.
-# Ignore local files not needed by the FastAPI image.
-
 __pycache__/
 **/__pycache__/
 *.pyc

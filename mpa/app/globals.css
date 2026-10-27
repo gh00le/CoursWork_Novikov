@@ -1,7 +1,8 @@
+
 :root {
   font-family: Arial, sans-serif;
-  color: #202124;
-  background: #f5f6f8;
+  color: rgb(32, 33, 36);
+  background: rgb(245, 246, 248);
 }
 
 * {
@@ -33,8 +34,8 @@ select {
   align-items: center;
   gap: 24px;
   padding: 18px 5vw;
-  background: white;
-  border-bottom: 1px solid #e4e7ec;
+  background: rgb(255, 255, 255);
+  border-bottom: 1px solid rgb(228, 231, 236);
 }
 
 .brand {
@@ -96,8 +97,8 @@ select {
   border: 0;
   border-radius: 10px;
   padding: 11px 16px;
-  background: #202124;
-  color: white;
+  background: rgb(32, 33, 36);
+  color: rgb(255, 255, 255);
   text-decoration: none;
   cursor: pointer;
 }
@@ -108,12 +109,12 @@ select {
 }
 
 .button-secondary {
-  background: #e9ecf1;
-  color: #202124;
+  background: rgb(233, 236, 241);
+  color: rgb(32, 33, 36);
 }
 
 .button-danger {
-  background: #852b2b;
+  background: rgb(133, 43, 43);
 }
 
 .page-heading {
@@ -131,10 +132,10 @@ select {
 .filters select,
 .quantity-row input,
 .cart-quantity {
-  border: 1px solid #cfd4dc;
+  border: 1px solid rgb(207, 212, 220);
   border-radius: 10px;
   padding: 10px 12px;
-  background: white;
+  background: rgb(255, 255, 255);
 }
 
 .filters input {
@@ -152,8 +153,8 @@ select {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: white;
-  border: 1px solid #e4e7ec;
+  background: rgb(255, 255, 255);
+  border: 1px solid rgb(228, 231, 236);
   border-radius: 16px;
 }
 
@@ -161,7 +162,7 @@ select {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: #eef0f3;
+  background: rgb(238, 240, 243);
 }
 
 .product-card-body {
@@ -188,14 +189,14 @@ select {
 }
 
 .muted {
-  color: #667085;
+  color: rgb(102, 112, 133);
 }
 
 .error {
   padding: 12px 14px;
   border-radius: 10px;
-  background: #fbe8e8;
-  color: #8b1f1f;
+  background: rgb(251, 232, 232);
+  color: rgb(139, 31, 31);
 }
 
 .back-link {
@@ -213,7 +214,7 @@ select {
 .product-details-image {
   width: 100%;
   border-radius: 18px;
-  background: #eef0f3;
+  background: rgb(238, 240, 243);
 }
 
 .quantity-row {
@@ -244,8 +245,8 @@ select {
   gap: 16px;
   align-items: center;
   padding: 14px;
-  background: white;
-  border: 1px solid #e4e7ec;
+  background: rgb(255, 255, 255);
+  border: 1px solid rgb(228, 231, 236);
   border-radius: 14px;
 }
 
@@ -254,7 +255,7 @@ select {
   height: 70px;
   object-fit: cover;
   border-radius: 10px;
-  background: #eef0f3;
+  background: rgb(238, 240, 243);
 }
 
 .cart-summary,
@@ -263,8 +264,8 @@ select {
 .empty-state {
   margin-top: 24px;
   padding: 24px;
-  background: white;
-  border: 1px solid #e4e7ec;
+  background: rgb(255, 255, 255);
+  border: 1px solid rgb(228, 231, 236);
   border-radius: 16px;
 }
 

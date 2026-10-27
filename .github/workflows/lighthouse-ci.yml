@@ -1,0 +1,59 @@
+name: Lighthouse CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "backend/**"
+      - "spa/**"
+      - "mpa/**"
+      - "docker-compose.yml"
+      - "benchmarks/lighthouserc.json"
+      - ".github/workflows/lighthouse-ci.yml"
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start the complete application
+        run: docker compose up -d --build
+
+      - name: Wait for the services
+        shell: bash
+        run: |
+          for attempt in {1..60}; do
+            if curl --fail --silent http://localhost:8000/health >/dev/null \
+              && curl --fail --silent http://localhost:5173/ >/dev/null \
+              && curl --fail --silent http://localhost:3000/ >/dev/null; then
+              echo "All application services are responding."
+              exit 0
+            fi
+            sleep 5
+          done
+          docker compose ps
+          docker compose logs --tail=100
+          exit 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run Lighthouse CI
+        run: npx --yes @lhci/cli@0.15.1 autorun --config=benchmarks/lighthouserc.json
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: benchmarks/results/lhci
+          if-no-files-found: ignore
+
+      - name: Stop the application
+        if: always()
+        run: docker compose down -v

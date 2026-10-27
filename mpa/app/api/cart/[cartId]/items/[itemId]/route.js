@@ -4,7 +4,7 @@ export async function PATCH(request, context) {
   const { cartId, itemId } = await context.params;
   const body = await request.text();
 
-  return proxyToBackend(`/api/cart/${cartId}/items/${itemId}`, {
+  return proxyToBackend(`/api/v1/cart/${cartId}/items/${itemId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -16,7 +16,7 @@ export async function PATCH(request, context) {
 export async function DELETE(request, context) {
   const { cartId, itemId } = await context.params;
 
-  return proxyToBackend(`/api/cart/${cartId}/items/${itemId}`, {
+  return proxyToBackend(`/api/v1/cart/${cartId}/items/${itemId}`, {
     method: "DELETE",
   });
 }

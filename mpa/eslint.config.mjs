@@ -3,9 +3,9 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
-  // Override default ignores of eslint-config-next.
+  // здесь переопределяются стандартные исключения eslint-config-next
   globalIgnores([
-    // Default ignores of eslint-config-next:
+    // это стандартные каталоги, которые не нужно проверять линтером:
     ".next/**",
     "out/**",
     "build/**",

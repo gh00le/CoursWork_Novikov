@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 import shutil
 import subprocess
 import time
@@ -7,20 +8,20 @@ from pathlib import Path
 
 import requests
 
-RUNS = 30  # Количество прогонов для каждой пары "архитектура + состояние Redis".
-REQUEST_TIMEOUT_SECONDS = 10  # Максимальное ожидание HTTP-запроса к FastAPI в секундах.
-LIGHTHOUSE_TIMEOUT_SECONDS = 120  # Максимальное время одного запуска Lighthouse в секундах.
-PAUSE_BETWEEN_RUNS_SECONDS = 1  # Пауза между прогонами, чтобы немного снизить влияние фоновой нагрузки.
+RUNS = int(os.getenv("LIGHTHOUSE_RUNS", "30"))  # количество 30 повторов даёт более устойчивую медиану, чем единичный запуск.
+REQUEST_TIMEOUT_SECONDS = 10  # тайм-аут в 10 секунд подходит для локального api и защищает от бесконечного ожидания.
+LIGHTHOUSE_TIMEOUT_SECONDS = 120  # тайм-аут в 120 секунд оставляет lighthouse время на анализ при медленной эмуляции.
+PAUSE_BETWEEN_RUNS_SECONDS = 1  # пауза в 1 секунду уменьшает влияние слишком плотной серии запусков.
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 RESULTS_DIR = Path(__file__).resolve().parent / "results" / "final_cache"
 TEMP_DIR = RESULTS_DIR / "tmp"
 
-BACKEND_URL = "http://localhost:8000"
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 TARGETS = {
-    "SPA": "http://localhost:4173/catalog",
-    "MPA": "http://localhost:3000/catalog",
+    "SPA": os.getenv("SPA_URL", "http://localhost:5173") + "/catalog",
+    "MPA": os.getenv("MPA_URL", "http://localhost:3000") + "/catalog",
 }
 
 CSV_FILE = RESULTS_DIR / "lighthouse_cache_raw.csv"
@@ -35,10 +36,14 @@ FIELDNAMES = [
     "cls",
     "tbt_ms",
     "speed_index_ms",
-    "tti_ms",
+    "inp_ms",
     "server_response_ms",
     "total_transfer_kb",
     "js_transfer_kb",
+    "request_count",
+    "seo_score",
+    "accessibility_score",
+    "best_practices_score",
 ]
 
 
@@ -78,8 +83,8 @@ def flush_redis() -> None:
 
 def warm_backend_cache() -> None:
     urls = [
-        f"{BACKEND_URL}/api/categories",
-        f"{BACKEND_URL}/api/products",
+        f"{BACKEND_URL}/api/v1/categories",
+        f"{BACKEND_URL}/api/v1/products",
     ]
 
     for url in urls:
@@ -116,6 +121,7 @@ def extract_lighthouse_result(
         if item.get("resourceType") == "Script"
     )
 
+    categories = report.get("categories", {})
     return {
         "architecture": architecture,
         "cache_mode": cache_mode,
@@ -126,7 +132,7 @@ def extract_lighthouse_result(
         "cls": round(extract_metric(report, "cumulative-layout-shift") or 0, 6),
         "tbt_ms": round(extract_metric(report, "total-blocking-time") or 0, 2),
         "speed_index_ms": round(extract_metric(report, "speed-index") or 0, 2),
-        "tti_ms": round(extract_metric(report, "interactive") or 0, 2),
+        "inp_ms": round(extract_metric(report, "interaction-to-next-paint") or 0, 2),
         "server_response_ms": round(
             extract_metric(report, "server-response-time") or 0,
             2,
@@ -136,6 +142,14 @@ def extract_lighthouse_result(
             2,
         ),
         "js_transfer_kb": round(js_transfer_bytes / 1024, 2),
+        "request_count": len(network_items),
+        "seo_score": round((categories.get("seo", {}).get("score") or 0) * 100, 2),
+        "accessibility_score": round(
+            (categories.get("accessibility", {}).get("score") or 0) * 100, 2
+        ),
+        "best_practices_score": round(
+            (categories.get("best-practices", {}).get("score") or 0) * 100, 2
+        ),
     }
 
 
@@ -157,10 +171,11 @@ def run_lighthouse(
         "lighthouse@13.5.0",
         url,
         "--quiet",
-        "--only-categories=performance",
+        "--only-categories=performance,seo,accessibility,best-practices",
+        "--preset=desktop",
         "--output=json",
         f"--output-path={output_file}",
-        "--chrome-flags=--headless=new",
+        "--chrome-flags=--headless=new --no-sandbox",
         "--no-enable-error-reporting",
     ]
 
@@ -226,7 +241,7 @@ def main() -> None:
         print(f"\n===== Redis: {cache_mode.upper()} =====")
 
         for run_number in range(1, RUNS + 1):
-            # Порядок SPA/MPA чередуется, чтобы один вариант не всегда
+            # порядок spa/mpa чередуется, чтобы один вариант не всегда
             # тестировался первым при одинаковой фоновой нагрузке.
             if run_number % 2 == 1:
                 architectures = ("SPA", "MPA")

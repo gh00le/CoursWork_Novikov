@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HomePage() {
   return (
     <section className="hero">
@@ -11,9 +13,9 @@ export default function HomePage() {
           корзины работают на клиенте после гидратации.
         </p>
 
-        <a className="button" href="/catalog">
+        <Link className="button" href="/catalog">
           Открыть каталог
-        </a>
+        </Link>
       </div>
     </section>
   );

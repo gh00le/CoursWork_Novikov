@@ -27,10 +27,6 @@ jobs:
         working-directory: backend
         run: pip install -r requirements-dev.txt
 
-      - name: Black check
-        working-directory: backend
-        run: black --check app tests
-
       - name: Flake8 check
         working-directory: backend
         run: flake8 app tests

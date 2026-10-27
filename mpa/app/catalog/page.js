@@ -1,89 +1,45 @@
 import { Suspense } from "react";
 
-import AddToCartButton from "../../components/AddToCartButton";
+import ProductCard from "../../features/catalog/ProductCard";
 import { backendRequest } from "../../lib/backend";
-import { formatPrice } from "../../lib/formatPrice";
+
+export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "Каталог товаров | Simple Shop MPA",
+  description: "Каталог товаров с поиском и фильтрацией по категориям.",
+};
 
 async function CatalogContent({ searchParams }) {
   const params = await searchParams;
-
   const categoryId = params?.category_id ?? "";
   const search = params?.search ?? "";
 
   const query = new URLSearchParams();
-
-  if (categoryId) {
-    query.set("category_id", categoryId);
-  }
-
-  if (search) {
-    query.set("search", search);
-  }
-
+  if (categoryId) query.set("category_id", categoryId);
+  if (search) query.set("search", search);
   const queryString = query.toString();
 
   const [categories, products] = await Promise.all([
-    backendRequest("/api/categories"),
-    backendRequest(`/api/products${queryString ? `?${queryString}` : ""}`),
+    backendRequest("/api/v1/categories"),
+    backendRequest(`/api/v1/products${queryString ? `?${queryString}` : ""}`),
   ]);
 
   return (
     <>
       <form className="filters" method="get">
-        <input
-          name="search"
-          defaultValue={search}
-          placeholder="Название товара"
-        />
-
+        <input name="search" defaultValue={search} placeholder="Название товара" />
         <select name="category_id" defaultValue={categoryId}>
           <option value="">Все категории</option>
-
           {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
+            <option key={category.id} value={category.id}>{category.name}</option>
           ))}
         </select>
-
-        <button className="button" type="submit">
-          Применить
-        </button>
+        <button className="button" type="submit">Применить</button>
       </form>
 
       <div className="products-grid">
-        {products.map((product) => (
-          <article className="product-card" key={product.id}>
-            <img
-              className="product-image"
-              src={product.image_url ?? "/images/products/placeholder.svg"}
-              alt={product.name}
-            />
-
-            <div className="product-card-body">
-              <h3>{product.name}</h3>
-              <p className="muted">{product.description}</p>
-              <p className="price">{formatPrice(product.price)}</p>
-              <p className="muted">На складе: {product.stock}</p>
-
-              <div className="product-actions">
-                <a
-                  className="button button-secondary"
-                  href={`/products/${product.id}`}
-                >
-                  Подробнее
-                </a>
-
-                <AddToCartButton
-                  productId={product.id}
-                  disabled={product.stock === 0}
-                />
-              </div>
-            </div>
-          </article>
-        ))}
+        {products.map((product) => <ProductCard key={product.id} product={product} />)}
       </div>
-
       {products.length === 0 && <p>Товары не найдены.</p>}
     </>
   );
@@ -98,8 +54,7 @@ export default function CatalogPage({ searchParams }) {
           <h1>Каталог товаров</h1>
         </div>
       </div>
-
-      <Suspense fallback={<p>Загрузка каталога...</p>}>
+      <Suspense fallback={<p role="status">Загрузка каталога...</p>}>
         <CatalogContent searchParams={searchParams} />
       </Suspense>
     </section>

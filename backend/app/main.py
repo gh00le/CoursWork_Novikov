@@ -1,12 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.config import CORS_ORIGINS
-from app.routers import cart, categories, health, orders, products
+from fastapi.responses import JSONResponse
+from app.api.v1.router import v1_router
+from app.core.config import CORS_ORIGINS
+from app.core.errors import AppError
 
 app = FastAPI(
     title="SPA vs MPA Coursework API",
-    version="0.1.0",
+    description="REST API for React SPA and Next.js SSR; PostgreSQL + Redis Hashes.",
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -17,8 +19,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(health.router)
-app.include_router(categories.router)
-app.include_router(products.router)
-app.include_router(cart.router)
-app.include_router(orders.router)
+
+@app.exception_handler(AppError)
+async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
+
+@app.get("/health", tags=["health"])
+def health_check() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+app.include_router(v1_router, prefix="/api/v1")
+app.include_router(v1_router, prefix="/api", include_in_schema=False)

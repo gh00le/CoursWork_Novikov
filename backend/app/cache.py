@@ -1,20 +1,51 @@
 import json
 from typing import Any
+from app.core.config import REDIS_URL
 
-from redis import Redis
-from redis.exceptions import RedisError
+try:
+    from redis.asyncio import Redis
+    from redis.exceptions import RedisError
+except ImportError:
 
-from app.config import REDIS_URL
+    class RedisError(Exception):
+        pass
+
+    class Redis:
+        @classmethod
+        def from_url(cls, *_args, **_kwargs):
+            class UnavailableRedis:
+                async def hget(self, *_args, **_kwargs):
+                    raise RedisError("redis package is not installed")
+
+                async def hset(self, *_args, **_kwargs):
+                    raise RedisError("redis package is not installed")
+
+                async def expire(self, *_args, **_kwargs):
+                    raise RedisError("redis package is not installed")
+
+                async def delete(self, *_args, **_kwargs):
+                    raise RedisError("redis package is not installed")
+
+                async def scan_iter(self, *_args, **_kwargs):
+                    raise RedisError("redis package is not installed")
+                    yield None
+
+            return UnavailableRedis()
+
 
 redis_client = Redis.from_url(
     REDIS_URL,
     decode_responses=True,
+    # тайм-аут в 0.25 секунды позволяет быстро перейти к базе если redis недоступен
+    socket_connect_timeout=0.25,
+    # такой же короткий тайм-аут ограничивает ожидание ответа кэша
+    socket_timeout=0.25,
 )
 
 
-def get_cache(key: str) -> Any | None:
+async def get_cache(key: str) -> Any | None:
     try:
-        value = redis_client.get(key)
+        value = await redis_client.hget(key, "payload")
     except RedisError:
         return None
 
@@ -23,31 +54,32 @@ def get_cache(key: str) -> Any | None:
 
     try:
         return json.loads(value)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, TypeError):
         return None
 
 
-def set_cache(key: str, value: Any, ttl_seconds: int) -> None:
+async def set_cache(key: str, value: Any, ttl_seconds: int) -> None:
     try:
-        redis_client.setex(
+        await redis_client.hset(
             key,
-            ttl_seconds,
-            json.dumps(value, ensure_ascii=False),
+            mapping={"payload": json.dumps(value, ensure_ascii=False)},
         )
+        await redis_client.expire(key, ttl_seconds)
+    except RedisError:
+        # сбой кэша не должен останавливать api если основная база доступна
+        pass
+
+
+async def delete_cache(key: str) -> None:
+    try:
+        await redis_client.delete(key)
     except RedisError:
         pass
 
 
-def delete_cache(key: str) -> None:
+async def delete_cache_pattern(pattern: str) -> None:
     try:
-        redis_client.delete(key)
-    except RedisError:
-        pass
-
-
-def delete_cache_pattern(pattern: str) -> None:
-    try:
-        for key in redis_client.scan_iter(match=pattern):
-            redis_client.delete(key)
+        async for key in redis_client.scan_iter(match=pattern):
+            await redis_client.delete(key)
     except RedisError:
         pass
