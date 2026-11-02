@@ -1,5 +1,5 @@
 from app.cache import get_cache, set_cache
-from app.core.config import CATEGORIES_CACHE_TTL_SECONDS
+from app.core.config import settings
 from app.repositories.category_repository import CategoryRepository
 from app.schemas.category import CategoryRead
 
@@ -21,6 +21,6 @@ class CategoryService:
         await set_cache(
             cache_key,
             [item.model_dump(mode="json") for item in categories],
-            CATEGORIES_CACHE_TTL_SECONDS,
+            settings.CATEGORIES_CACHE_TTL_SECONDS,
         )
         return categories

@@ -1,5 +1,3 @@
-import { describe, expect, test } from "vitest";
-
 import { formatPrice } from "../lib/formatPrice";
 
 describe("formatPrice", () => {

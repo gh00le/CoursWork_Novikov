@@ -1,54 +1,78 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 import { formatPrice } from "../lib/formatPrice";
 
-const CART_STORAGE_KEY = "coursework_cart_id"; // Идентификатор корзины хранится в браузере пользователя.
+const CART_STORAGE_KEY = "coursework_cart_id";
+
+// Создание новой корзины.
+async function createCart() {
+  const response = await fetch("/api/cart", {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error("Не удалось создать корзину");
+  }
+
+  const createdCart = await response.json();
+  localStorage.setItem(CART_STORAGE_KEY, String(createdCart.id));
+
+  return createdCart.id;
+}
+
+// Получение корзины пользователя.
+async function getCart() {
+  let cartId = localStorage.getItem(CART_STORAGE_KEY);
+
+  if (!cartId) {
+    cartId = await createCart();
+  }
+
+  let response = await fetch(`/api/cart/${cartId}`);
+
+  if (response.status === 404) {
+    localStorage.removeItem(CART_STORAGE_KEY);
+    cartId = await createCart();
+    response = await fetch(`/api/cart/${cartId}`);
+  }
+
+  if (!response.ok) {
+    throw new Error("Не удалось загрузить корзину");
+  }
+
+  return response.json();
+}
 
 export default function CartClient() {
   const [cart, setCart] = useState(null);
   const [message, setMessage] = useState("");
 
-  async function createCart() {
-    const response = await fetch("/api/cart", {
-      method: "POST",
-    });
-
-    const createdCart = await response.json();
-    localStorage.setItem(CART_STORAGE_KEY, String(createdCart.id));
-
-    return createdCart.id;
-  }
-
-  async function loadCart() {
-    try {
-      let cartId = localStorage.getItem(CART_STORAGE_KEY);
-
-      if (!cartId) {
-        cartId = await createCart();
-      }
-
-      let response = await fetch(`/api/cart/${cartId}`);
-
-      if (response.status === 404) {
-        localStorage.removeItem(CART_STORAGE_KEY);
-        cartId = await createCart();
-        response = await fetch(`/api/cart/${cartId}`);
-      }
-
-      if (!response.ok) {
-        throw new Error("Не удалось загрузить корзину");
-      }
-
-      setCart(await response.json());
-    } catch (error) {
-      setMessage(error.message);
-    }
-  }
-
   useEffect(() => {
+    let isMounted = true;
+
+    async function loadCart() {
+      try {
+        const loadedCart = await getCart();
+
+        if (isMounted) {
+          setCart(loadedCart);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setMessage(error.message);
+        }
+      }
+    }
+
     loadCart();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   async function changeQuantity(itemId, quantity) {
@@ -84,7 +108,12 @@ export default function CartClient() {
       return;
     }
 
-    await loadCart();
+    try {
+      setCart(await getCart());
+      setMessage("");
+    } catch (error) {
+      setMessage(error.message);
+    }
   }
 
   if (!cart) {
@@ -109,9 +138,15 @@ export default function CartClient() {
       <div className="cart-list">
         {cart.items.map((item) => (
           <article className="cart-item" key={item.id}>
-            <img
-              src={item.product.image_url ?? "/images/products/placeholder.svg"}
+            <Image
+              src={
+                item.product.image_url ??
+                "/images/products/placeholder.svg"
+              }
               alt={item.product.name}
+              width={100}
+              height={100}
+              unoptimized
             />
 
             <div>

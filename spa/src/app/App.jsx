@@ -14,7 +14,7 @@ function App() {
 
   return (
     <div className="app">
-      <header className="header">
+      <header className="header bg-light">
         <Link className="brand" to="/">
           Simple Shop SPA
         </Link>

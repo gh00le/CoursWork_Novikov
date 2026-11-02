@@ -1,13 +1,13 @@
 .page {
-  --background: #fafafa;
-  --foreground: #fff;
+  --background: rgb(250, 250, 250);
+  --foreground: rgb(255, 255, 255);
 
-  --text-primary: #000;
-  --text-secondary: #666;
+  --text-primary: rgb(0, 0, 0);
+  --text-secondary: rgb(102, 102, 102);
 
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
+  --button-primary-hover: rgb(56, 56, 56);
+  --button-secondary-hover: rgb(242, 242, 242);
+  --button-secondary-border: rgb(235, 235, 235);
 
   display: flex;
   flex: 1;
@@ -129,15 +129,15 @@ a.secondary {
   }
 
   .page {
-    --background: #000;
-    --foreground: #000;
+    --background: rgb(0, 0, 0);
+    --foreground: rgb(0, 0, 0);
 
-    --text-primary: #ededed;
-    --text-secondary: #999;
+    --text-primary: rgb(237, 237, 237);
+    --text-secondary: rgb(153, 153, 153);
 
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+    --button-primary-hover: rgb(204, 204, 204);
+    --button-secondary-hover: rgb(26, 26, 26);
+    --button-secondary-border: rgb(26, 26, 26);
   }
 }
 

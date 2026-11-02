@@ -1,37 +1,37 @@
 import asyncio
+import os
 from decimal import Decimal
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
-
 from app.database import Base, get_db
 from app.main import app
 from app.models import Category, Product
 
 
 @pytest.fixture
-def test_database(tmp_path, monkeypatch):
-    db_path = tmp_path / "coursework-tests.sqlite3"
-    sync_engine = create_engine(
-        f"sqlite:///{db_path.as_posix()}",
-        connect_args={"check_same_thread": False},
+def test_database(monkeypatch):
+    database_url = os.getenv(
+        "TEST_DATABASE_URL",
+        (
+            "postgresql+psycopg://coursework:"
+            "coursework_dev_password@localhost:5432/coursework_test"
+        ),
     )
+    async_database_url = database_url.replace(
+        "postgresql+psycopg://", "postgresql+asyncpg://"
+    )
+    sync_engine = create_engine(database_url, pool_pre_ping=True)
+    Base.metadata.drop_all(bind=sync_engine)
     Base.metadata.create_all(bind=sync_engine)
-    testing_session = sessionmaker(bind=sync_engine, autoflush=False, autocommit=False)
+    testing_session = sessionmaker(bind=sync_engine, autoflush=False)
 
-    # отдельные соединения не привязаны к event loop, который создаёт TestClient.
-    async_engine = create_async_engine(
-        f"sqlite+aiosqlite:///{db_path.as_posix()}",
-        poolclass=NullPool,
-    )
+    async_engine = create_async_engine(async_database_url, poolclass=NullPool)
     testing_async_session = async_sessionmaker(
-        bind=async_engine,
-        expire_on_commit=False,
-        autoflush=False,
+        bind=async_engine, expire_on_commit=False, autoflush=False
     )
 
     async def override_get_db():
@@ -40,7 +40,6 @@ def test_database(tmp_path, monkeypatch):
 
     app.dependency_overrides[get_db] = override_get_db
 
-    # тесты проверяют бизнес-логику отдельно от доступности сервиса redis.
     async def no_cache(_key):
         return None
 
@@ -80,9 +79,9 @@ def create_product(test_database):
     def _create_product(*, name="Test product", price="100.00", stock=5):
         db = test_database()
         try:
-            category = (
-                db.query(Category).filter(Category.name == "Test category").first()
-            )
+            category = db.query(Category).filter(
+                Category.name == "Test category"
+            ).first()
             if category is None:
                 category = Category(name="Test category")
                 db.add(category)

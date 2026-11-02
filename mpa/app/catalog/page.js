@@ -26,15 +26,15 @@ async function CatalogContent({ searchParams }) {
 
   return (
     <>
-      <form className="filters" method="get">
-        <input name="search" defaultValue={search} placeholder="Название товара" />
-        <select name="category_id" defaultValue={categoryId}>
+      <form className="filters row g-2" method="get">
+        <input className="form-control" name="search" defaultValue={search} placeholder="Название товара" />
+        <select className="form-select" name="category_id" defaultValue={categoryId}>
           <option value="">Все категории</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>{category.name}</option>
           ))}
         </select>
-        <button className="button" type="submit">Применить</button>
+        <button className="button btn btn-primary" type="submit">Применить</button>
       </form>
 
       <div className="products-grid">

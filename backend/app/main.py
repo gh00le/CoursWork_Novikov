@@ -2,18 +2,21 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.api.v1.router import v1_router
-from app.core.config import CORS_ORIGINS
+from app.core.config import settings
 from app.core.errors import AppError
 
+
 app = FastAPI(
-    title="SPA vs MPA Coursework API",
-    description="REST API for React SPA and Next.js SSR; PostgreSQL + Redis Hashes.",
+    title=settings.APP_NAME,
+    description="REST API for the React SPA and Next.js MPA prototypes.",
     version="1.0.0",
+    debug=settings.DEBUG,
 )
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

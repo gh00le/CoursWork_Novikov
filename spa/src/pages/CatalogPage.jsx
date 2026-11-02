@@ -61,19 +61,19 @@ function CatalogPage() {
         </div>
       </div>
 
-      <div className="filters">
+      <div className="filters row g-2">
         <form className="search-form" onSubmit={handleSearch}>
-          <input
+          <input className="form-control"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Название товара"
           />
-          <button className="button" type="submit">
+          <button className="button btn btn-primary" type="submit">
             Найти
           </button>
         </form>
 
-        <select
+        <select className="form-select"
           value={categoryId}
           onChange={(event) => setCategoryId(event.target.value)}
         >

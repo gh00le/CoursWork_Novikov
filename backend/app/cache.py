@@ -1,6 +1,6 @@
 import json
 from typing import Any
-from app.core.config import REDIS_URL
+from app.core.config import settings
 
 try:
     from redis.asyncio import Redis
@@ -34,7 +34,7 @@ except ImportError:
 
 
 redis_client = Redis.from_url(
-    REDIS_URL,
+    settings.REDIS_URL,
     decode_responses=True,
     # тайм-аут в 0.25 секунды позволяет быстро перейти к базе если redis недоступен
     socket_connect_timeout=0.25,

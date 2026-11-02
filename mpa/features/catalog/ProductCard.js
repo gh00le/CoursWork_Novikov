@@ -6,7 +6,7 @@ import { formatPrice } from "../../lib/formatPrice";
 
 export default function ProductCard({ product }) {
   return (
-    <article className="product-card">
+    <article className="product-card card">
       {/* размер 800 на 600 задаёт соотношение сторон 4:3 для изображений карточки */}
       <Image
         className="product-image"
@@ -22,7 +22,7 @@ export default function ProductCard({ product }) {
         <p className="price">{formatPrice(product.price)}</p>
         <p className="muted">На складе: {product.stock}</p>
         <div className="product-actions">
-          <Link className="button button-secondary" href={`/products/${product.id}`}>
+          <Link className="button button-secondary btn btn-outline-primary" href={`/products/${product.id}`}>
             Подробнее
           </Link>
           <AddToCartButton productId={product.id} disabled={product.stock === 0} />

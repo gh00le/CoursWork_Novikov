@@ -23,7 +23,7 @@ function ProductCard({ product }) {
   }
 
   return (
-    <article className="product-card">
+    <article className="product-card card">
       <img
         className="product-image"
         src={product.image_url ?? "/images/products/placeholder.svg"}
@@ -42,13 +42,13 @@ function ProductCard({ product }) {
 
         <div className="product-actions">
           <Link
-            className="button button-secondary"
+            className="button button-secondary btn btn-outline-primary"
             to={`/products/${product.id}`}
           >
             Подробнее
           </Link>
           <button
-            className="button"
+            className="button btn btn-primary"
             type="button"
             onClick={handleAddToCart}
             disabled={product.stock === 0 || adding}

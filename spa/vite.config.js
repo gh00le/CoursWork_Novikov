@@ -5,9 +5,4 @@ export default defineConfig({
   plugins: [react()],
   server: { host: "0.0.0.0" },
   preview: { host: "0.0.0.0" },
-  test: {
-    environment: "jsdom",
-    setupFiles: "./src/test/setup.js",
-    clearMocks: true,
-  },
 });

@@ -1,7 +1,7 @@
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.cache import delete_cache, get_cache, set_cache
-from app.core.config import CART_CACHE_TTL_SECONDS
+from app.core.config import settings
 from app.core.errors import BusinessRuleError, NotFoundError
 from app.models import Cart, CartItem
 from app.repositories.cart_repository import CartRepository
@@ -52,7 +52,7 @@ class CartService:
         await set_cache(
             f"cart:{cart.id}",
             cart.model_dump(mode="json"),
-            CART_CACHE_TTL_SECONDS,
+            settings.CART_CACHE_TTL_SECONDS,
         )
 
     async def create_cart(self) -> CartCreateRead:

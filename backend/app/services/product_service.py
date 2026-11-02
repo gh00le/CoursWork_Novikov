@@ -1,10 +1,6 @@
 from urllib.parse import quote
 from app.cache import delete_cache, delete_cache_pattern, get_cache, set_cache
-from app.core.config import (
-    CATALOG_CACHE_TTL_SECONDS,
-    DEFAULT_PRODUCTS_LIMIT,
-    PRODUCT_CACHE_TTL_SECONDS,
-)
+from app.core.config import settings
 from app.core.errors import NotFoundError
 from app.repositories.product_repository import ProductRepository
 from app.schemas.product import ProductRead
@@ -19,7 +15,7 @@ class ProductService:
         *,
         category_id: int | None = None,
         search: str | None = None,
-        limit: int = DEFAULT_PRODUCTS_LIMIT,
+        limit: int = settings.DEFAULT_PRODUCTS_LIMIT,
         # offset 0 означает что выдача начинается с первого товара
         offset: int = 0,
     ) -> list[ProductRead]:
@@ -44,7 +40,7 @@ class ProductService:
         await set_cache(
             cache_key,
             [item.model_dump(mode="json") for item in result],
-            CATALOG_CACHE_TTL_SECONDS,
+            settings.CATALOG_CACHE_TTL_SECONDS,
         )
         return result
 
@@ -62,7 +58,7 @@ class ProductService:
         await set_cache(
             cache_key,
             result.model_dump(mode="json"),
-            PRODUCT_CACHE_TTL_SECONDS,
+            settings.PRODUCT_CACHE_TTL_SECONDS,
         )
         return result
 

@@ -1,20 +1,25 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query
 from app.api.deps import get_product_service
-from app.core.config import DEFAULT_PRODUCTS_LIMIT, MAX_PRODUCTS_LIMIT
+from app.core.config import settings
 from app.schemas.product import ProductRead
 from app.services.product_service import ProductService
 
+
 router = APIRouter(prefix="/products", tags=["products"])
+
 
 @router.get("", response_model=list[ProductRead])
 async def list_products(
     service: Annotated[ProductService, Depends(get_product_service)],
     category_id: Annotated[int | None, Query(gt=0)] = None,
     search: str | None = None,
-    # диапазон от 1 до MAX_PRODUCTS_LIMIT это ограничение количества товаров за запрос не позволяет загружать
+    # диапазон от 1 до MAX_PRODUCTS_LIMIT это ограничение
+    # количества товаров за запрос не позволяет загружать
     # слишком много данных сразу и замедлять работу сайта
-    limit: Annotated[int, Query(ge=1, le=MAX_PRODUCTS_LIMIT)] = DEFAULT_PRODUCTS_LIMIT,
+    limit: Annotated[int, Query(ge=1, le=settings.MAX_PRODUCTS_LIMIT)] = (
+        settings.DEFAULT_PRODUCTS_LIMIT
+    ),
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[ProductRead]:
     return await service.list_products(

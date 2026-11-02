@@ -1,30 +1,40 @@
-import os
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-def _csv_env(name: str, default: str) -> list[str]:
-    value = os.getenv(name, default)
-    return [item.strip() for item in value.split(",") if item.strip()]
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    APP_NAME: str = "SPA vs MPA Coursework API"
+    DEBUG: bool = False
+    DATABASE_URL: str = (
+        "postgresql+asyncpg://coursework:"
+        "coursework_dev_password@localhost:5432/coursework"
+    )
+    REDIS_URL: str = "redis://localhost:6379/0"
+    CORS_ORIGINS: str = (
+        "http://localhost:5173,"
+        "http://localhost:4173,"
+        "http://localhost:3000"
+    )
+    DEFAULT_PRODUCTS_LIMIT: int = 20
+    MAX_PRODUCTS_LIMIT: int = 100
+    CATALOG_CACHE_TTL_SECONDS: int = 60
+    PRODUCT_CACHE_TTL_SECONDS: int = 60
+    CATEGORIES_CACHE_TTL_SECONDS: int = 300
+    CART_CACHE_TTL_SECONDS: int = 30
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [
+            origin.strip()
+            for origin in self.CORS_ORIGINS.split(",")
+            if origin.strip()
+        ]
 
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./shop.db")
-# индекс 0 выбран как стандартная отдельная база
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-
-# значение 20 позволяет показать каталог без чрезмерного ответа по умолчанию
-DEFAULT_PRODUCTS_LIMIT = 20
-# лимит в 100 защищает api от случайной загрузки слишком большой выборки за один запрос
-MAX_PRODUCTS_LIMIT = 100
-
-# значение 60 секунд - компромисс между свежестью каталога и числом sql-запросов
-CATALOG_CACHE_TTL_SECONDS = 60
-# кэш карточки на 60 секунд ускоряет повторные запросы и ограничивает устаревание данных
-PRODUCT_CACHE_TTL_SECONDS = 60
-# категории меняются реже каталога, поэтому кэш можно хранить 300 секунд (5 минут)
-CATEGORIES_CACHE_TTL_SECONDS = 300
-# кэш корзины на 30 секунд помогает быстрее отражать изменения пользователя
-CART_CACHE_TTL_SECONDS = 30
-
-CORS_ORIGINS = _csv_env(
-    "CORS_ORIGINS",
-    "http://localhost:5173,http://localhost:4173,http://localhost:3000",
-)
+settings = Settings()

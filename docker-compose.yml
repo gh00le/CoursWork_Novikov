@@ -8,6 +8,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-coursework_dev_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/init-test-db.sql:/docker-entrypoint-initdb.d/10-create-test-db.sql:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -42,6 +43,7 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-coursework}:${POSTGRES_PASSWORD:-coursework_dev_password}@db:5432/${POSTGRES_DB:-coursework}
       REDIS_URL: redis://redis:6379/0
+      TEST_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-coursework}:${POSTGRES_PASSWORD:-coursework_dev_password}@db:5432/coursework_test
       CORS_ORIGINS: http://localhost:5173,http://localhost:4173,http://localhost:3000
     ports:
       - "8000:8000"
@@ -86,6 +88,7 @@ services:
     environment:
       API_URL_SERVER: http://backend:8000
       NODE_ENV: production
+      HOSTNAME: "0.0.0.0"
     ports:
       - "3000:3000"
     depends_on:

@@ -4,6 +4,7 @@ from app.api.deps import get_order_service
 from app.schemas.order import OrderCreate, OrderRead
 from app.services.order_service import OrderService
 
+
 router = APIRouter(prefix="/orders", tags=["orders"])
 
 

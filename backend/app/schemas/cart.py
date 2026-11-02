@@ -1,8 +1,10 @@
 from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, Field
 
+
 class CartCreateRead(BaseModel):
     id: int
+
 
 class CartItemCreate(BaseModel):
     # идентификатор товара должен быть положительным тк нумерация начинается с 1
@@ -12,7 +14,8 @@ class CartItemCreate(BaseModel):
 
 
 class CartItemUpdate(BaseModel):
-    # количество не может быть меньше одной единицы, а удаление выполняется отдельным endpoint
+    # количество не может быть меньше одной единицы,
+    # а удаление выполняется отдельным endpoint
     quantity: int = Field(ge=1)
 
 

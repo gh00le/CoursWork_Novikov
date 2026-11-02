@@ -4,13 +4,14 @@ from sqlalchemy import func, select
 from app.database import AsyncSessionLocal, Base, engine
 from app.models import Category, Product
 
+
 SEED_PRODUCTS = [
     {
         "name": "Ноутбук",
         "description": "Учебный ноутбук для работы и повседневных задач.",
         "price": Decimal("74990.00"),
         "stock": 12,
-        "image_url": "/images/products/laptop.jpg",
+        "image_url": "/images/products/placeholder.svg",
         "category": "Электроника",
     },
     {
@@ -18,7 +19,7 @@ SEED_PRODUCTS = [
         "description": "Компактная мышь с беспроводным подключением.",
         "price": Decimal("2490.00"),
         "stock": 35,
-        "image_url": "/images/products/mouse.jpg",
+        "image_url": "/images/products/placeholder.svg",
         "category": "Электроника",
     },
     {
@@ -26,7 +27,7 @@ SEED_PRODUCTS = [
         "description": "Полноразмерная клавиатура для работы за компьютером.",
         "price": Decimal("3990.00"),
         "stock": 20,
-        "image_url": "/images/products/keyboard.jpg",
+        "image_url": "/images/products/placeholder.svg",
         "category": "Электроника",
     },
     {
@@ -34,7 +35,7 @@ SEED_PRODUCTS = [
         "description": "Лампа для рабочего стола с регулируемым наклоном.",
         "price": Decimal("2990.00"),
         "stock": 18,
-        "image_url": "/images/products/lamp.jpg",
+        "image_url": "/images/products/placeholder.svg",
         "category": "Дом",
     },
     {
@@ -42,7 +43,7 @@ SEED_PRODUCTS = [
         "description": "Термокружка объёмом 450 мл.",
         "price": Decimal("1890.00"),
         "stock": 25,
-        "image_url": "/images/products/mug.jpg",
+        "image_url": "/images/products/placeholder.svg",
         "category": "Дом",
     },
     {
@@ -50,7 +51,7 @@ SEED_PRODUCTS = [
         "description": "Учебная книга с базовыми примерами программирования.",
         "price": Decimal("1590.00"),
         "stock": 30,
-        "image_url": "/images/products/python-book.jpg",
+        "image_url": "/images/products/placeholder.svg",
         "category": "Книги",
     },
 ]
@@ -77,7 +78,6 @@ async def seed_database() -> None:
                 db.add(category)
                 await db.flush()
             categories[name] = category
-
         for item in SEED_PRODUCTS:
             db.add(
                 Product(
