@@ -16,8 +16,8 @@ RAW_DIR = RESULTS_DIR / "raw"
 OUTPUT_FILE = RESULTS_DIR / "network_profiles.csv"
 
 TARGETS = {
-    "SPA": os.getenv("SPA_URL", "http://localhost:5173") + "/catalog",
-    "MPA": os.getenv("MPA_URL", "http://localhost:3000") + "/catalog",
+    "SPA": os.getenv("SPA_URL", "http://localhost:8080") + "/catalog",
+    "MPA": os.getenv("MPA_URL", "http://localhost:8080/mpa") + "/catalog",
 }
 
 # параметры являются приближёнными профилями для повторяемого эксперимента, а не точными

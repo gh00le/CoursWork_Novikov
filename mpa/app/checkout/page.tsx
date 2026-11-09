@@ -1,0 +1,4 @@
+import CheckoutClient from "../../features/cart/CheckoutClient";
+export default function CheckoutPage() {
+  return <section><p className="text-secondary small">Оформление</p><h1>Подтверждение заказа</h1><CheckoutClient /></section>;
+}

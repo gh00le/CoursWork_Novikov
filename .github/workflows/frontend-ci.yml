@@ -34,10 +34,13 @@ jobs:
           node-version: "22"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: ESLint
         run: npx eslint .
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Tests
         run: npm test

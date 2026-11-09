@@ -8,6 +8,7 @@ on:
       - "spa/**"
       - "mpa/**"
       - "docker-compose.yml"
+      - "gateway/**"
       - "benchmarks/lighthouserc.json"
       - ".github/workflows/lighthouse-ci.yml"
 
@@ -26,9 +27,9 @@ jobs:
         shell: bash
         run: |
           for attempt in {1..60}; do
-            if curl --fail --silent http://localhost:8000/health >/dev/null \
-              && curl --fail --silent http://localhost:5173/ >/dev/null \
-              && curl --fail --silent http://localhost:3000/ >/dev/null; then
+            if curl --fail --silent http://localhost:8080/health >/dev/null \
+              && curl --fail --silent http://localhost:8080/ >/dev/null \
+              && curl --fail --silent http://localhost:8080/mpa >/dev/null; then
               echo "All application services are responding."
               exit 0
             fi
@@ -56,4 +57,4 @@ jobs:
 
       - name: Stop the application
         if: always()
-        run: docker compose down -v
+        run: docker compose down

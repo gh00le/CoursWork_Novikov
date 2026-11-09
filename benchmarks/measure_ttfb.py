@@ -13,12 +13,12 @@ TARGETS = [
     {
         "architecture": "SPA",
         "page": "catalog",
-        "url": os.getenv("SPA_URL", "http://localhost:5173") + "/catalog",
+        "url": os.getenv("SPA_URL", "http://localhost:8080") + "/catalog",
     },
     {
         "architecture": "MPA",
         "page": "catalog",
-        "url": os.getenv("MPA_URL", "http://localhost:3000") + "/catalog",
+        "url": os.getenv("MPA_URL", "http://localhost:8080/mpa") + "/catalog",
     },
 ]
 

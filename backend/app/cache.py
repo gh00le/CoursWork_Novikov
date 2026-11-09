@@ -14,6 +14,9 @@ except ImportError:
         @classmethod
         def from_url(cls, *_args, **_kwargs):
             class UnavailableRedis:
+                async def ping(self):
+                    raise RedisError("redis package is not installed")
+
                 async def hget(self, *_args, **_kwargs):
                     raise RedisError("redis package is not installed")
 
@@ -83,3 +86,11 @@ async def delete_cache_pattern(pattern: str) -> None:
             await redis_client.delete(key)
     except RedisError:
         pass
+
+
+async def is_cache_available() -> bool:
+    """Проверить доступность Redis, не раскрывая параметры подключения."""
+    try:
+        return bool(await redis_client.ping())
+    except (RedisError, OSError, TimeoutError):
+        return False

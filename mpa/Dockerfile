@@ -25,5 +25,5 @@ USER nextjs
 # порт 3000 — стандартный порт next.js в этом проекте.
 EXPOSE 3000
 # next.js запускается тяжелее статического nginx, поэтому предусмотрено 10 проверок по 3 секунды.
-HEALTHCHECK --interval=10s --timeout=3s --retries=10 CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+HEALTHCHECK --interval=10s --timeout=3s --retries=10 CMD node -e "fetch('http://127.0.0.1:3000/mpa').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "server.js"]

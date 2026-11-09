@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.api.v1.router import v1_router
+from app.cache import is_cache_available
 from app.core.config import settings
 from app.core.errors import AppError
 
@@ -38,3 +39,10 @@ def health_check() -> dict[str, str]:
 
 app.include_router(v1_router, prefix="/api/v1")
 app.include_router(v1_router, prefix="/api", include_in_schema=False)
+
+
+@app.get("/health/cache", tags=["health"])
+async def cache_health() -> dict[str, str]:
+    """Показывает, используется ли живой Redis в приложении."""
+    available = await is_cache_available()
+    return {"redis": "connected" if available else "unavailable"}

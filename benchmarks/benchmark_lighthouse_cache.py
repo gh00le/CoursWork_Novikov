@@ -20,8 +20,8 @@ TEMP_DIR = RESULTS_DIR / "tmp"
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 TARGETS = {
-    "SPA": os.getenv("SPA_URL", "http://localhost:5173") + "/catalog",
-    "MPA": os.getenv("MPA_URL", "http://localhost:3000") + "/catalog",
+    "SPA": os.getenv("SPA_URL", "http://localhost:8080") + "/catalog",
+    "MPA": os.getenv("MPA_URL", "http://localhost:8080/mpa") + "/catalog",
 }
 
 CSV_FILE = RESULTS_DIR / "lighthouse_cache_raw.csv"
